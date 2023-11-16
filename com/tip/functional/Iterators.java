@@ -310,16 +310,34 @@ public class Iterators {
     };
   }
 
+  /**
+   * 두 Iterator의 각 요소를 결합하여 새로운 값을 생성하는 Iterator를 반환합니다.
+   * 이 Iterator는 각각의 xIterator와 yIterator에서 요소를 하나씩 가져와서,
+   * 주어진 biFunction을 이용하여 새로운 값 Z를 생성합니다.
+   *
+   * @param <X>        첫 번째 Iterator의 요소 타입
+   * @param <Y>        두 번째 Iterator의 요소 타입
+   * @param <Z>        결과 Iterator의 요소 타입
+   * @param biFunction 두 요소 X와 Y를 결합하여 새로운 요소 Z를 생성하는 함수
+   * @param xIterator  첫 번째 Iterator
+   * @param yIterator  두 번째 Iterator
+   * @return 두 Iterator의 요소를 결합하여 생성된 새로운 요소 Z를 포함하는 Iterator
+   * @throws IllegalNullArgumentException biFunction, xIterator 또는 yIterator가 null인 경우 발생
+   * @throws NoSuchElementException       xIterator 또는 yIterator 중 하나가 더 이상 요소를 가지고 있지 않을 때 발생
+   */
   public static <X, Y, Z> Iterator<Z> zip(BiFunction<X, Y, Z> biFunction, Iterator<X> xIterator,
-      Iterator<Y> yIterator) {
+                                          Iterator<Y> yIterator) {
+    nullCheckValidation("zip", biFunction, "BiFunction<X, Y, Z> biFunction", xIterator, "Iterator<E> iterator",
+            yIterator, "Iterator<Y> yIterator");
     return new Iterator<Z>() {
       public boolean hasNext() {
         return xIterator.hasNext() && yIterator.hasNext();
       }
 
       public Z next() {
-        if (!hasNext())
+        if (!hasNext()) {
           throw new NoSuchElementException("zip");
+        }
         return biFunction.apply(xIterator.next(), yIterator.next());
       }
     };
