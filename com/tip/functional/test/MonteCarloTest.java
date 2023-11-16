@@ -107,8 +107,6 @@ public class MonteCarloTest {
         /*     * 좋은 약초는 BEST 품질. 좋은 약초가 없으면 다른 약초를 여럿 섞어서 대신 쓰는데 그 품질이 고르지 않습니다. 좋은 약초가 있느냐 없느냐에 따른 약초의
          * 효과를 어림잡는 함수를 만듭니다.
          *
-         * 네 가지 품질 가운데 하나가 고르게 뽑히도록 이산 균등 분포를 씁니다.
-         */
          * 네 가지 품질 가운데 하나가 고르게 뽑히도록 이산 균등 분포를 씁니다.*/
 
 
@@ -163,9 +161,9 @@ public class MonteCarloTest {
          *
          * 계산과 저장을 가능한 하지 않고 미루는 방식과 계산 과정에서 얻은 정보를 적절히 저장하는 두 가지 다른 방식을 한 데 엮어 쓰는 본보기가 됩니다. 문제는 그에
          * 맞는 풀이 방법이 제 각기 다를 수 있습니다. 굳이 한 가지 방법만을 고집할 필요가 없습니다.
-         */
 
-        /*
+
+
          * 계산 과정에서 얻은 데이터 곧 횟수와 합을 저장하기 때문에 필요할 때 꺼내 쓸 수 있으면서도 InfiniteIterator로 동작하는 Experiments
          * class를 만들 수 있습니다.
          *
@@ -173,55 +171,63 @@ public class MonteCarloTest {
          * 준비가 되어 있습니다.
          */
 
+
         final double herbRatio = 0.2;
         Experiments<Integer> herbAvailablities = // TODO: Experiments 만들기
-                new Experiments<>(Mathx.binaryDistribution(herbRatio), "herb availabilities",
-                        "binomial distribution");
+                new Experiments<>(Mathx.binaryDistribution(herbRatio), "herb availabilities", "binomial distribution");
 
         Experiments<Integer> herbQualities = new Experiments<>(
-                zip((available, effect) -> available == 1 ? Quality.BEST.ordinal() : effect,
-                        herbAvailablities, Mathx.discreteUniformDistribution(Quality.class)),
-                "herb qualities", "discrete uniform distribition");
+                zip((available, effect) -> available == 1 ? Quality.BEST.ordinal() : effect, herbAvailablities,
+                        Mathx.discreteUniformDistribution(Quality.class)), "herb qualities",
+                "discrete uniform distribition");
 
         EnumMap<Quality, Experiments<Double>> normalDistributions = new EnumMap<>(Quality.class);
         String normalDistribution = "normal distribition";
-        normalDistributions.put(Quality.BEST, new Experiments<>(Mathx.normalDistribution(90, 10),
-                "best effect", normalDistribution));
-        normalDistributions.put(Quality.GOOD, new Experiments<>(Mathx.normalDistribution(80, 20),
-                "good effect", normalDistribution));
-        normalDistributions.put(Quality.REGULAR, new Experiments<>(Mathx.normalDistribution(50, 30),
-                "regular effect", normalDistribution));
-        normalDistributions.put(Quality.POOR, new Experiments<>(Mathx.normalDistribution(30, 40),
-                "poor effect", normalDistribution));
+        normalDistributions.put(Quality.BEST,
+                new Experiments<>(Mathx.normalDistribution(90, 10), "best effect", normalDistribution));
+        normalDistributions.put(Quality.GOOD,
+                new Experiments<>(Mathx.normalDistribution(80, 20), "good effect", normalDistribution));
+        normalDistributions.put(Quality.REGULAR,
+                new Experiments<>(Mathx.normalDistribution(50, 30), "regular effect", normalDistribution));
+        normalDistributions.put(Quality.POOR,
+                new Experiments<>(Mathx.normalDistribution(30, 40), "poor effect", normalDistribution));
 
         Iterator<Double> medicineEffects = map(herbQualities, quality -> {
             double effect = normalDistributions.get(Quality.values()[quality]).next();
-            if (effect < 0)
+            if (effect < 0) {
                 return 0D;
-            if (effect > 100)
+            }
+            if (effect > 100) {
                 return 100D;
+            }
             return effect;
         });
 
         toList(limit(medicineEffects, 7000)); // 실제 계산은 여기서 일어납니다!!!
 
-        /*
-         * 모든 계산이 마무리되었으므로 계산 결과를 볼 수 있습니다. Experiments 클래스가 없다면 계산 순열을 끝없이 늘어놓는 일과 계산 과정을 기록하는 일, 이
+        /*     * 모든 계산이 마무리되었으므로 계산 결과를 볼 수 있습니다. Experiments 클래스가 없다면 계산 순열을 끝없이 늘어놓는 일과 계산 과정을 기록하는 일, 이
          * 둘을 한 꾸러미로 묶어내기가 (언제나 그렇듯이 한 방법으로 다른 방법을 완전히 대체하는 할 수 있지만) 무척 번거롭습니다. 문제마다 알맞은 방법을 골라서 서로
          * 잘 어울리도록 짜 맞추면 프로그램의 얼개가 아주 튼튼해집니다. 성능을 시험하고 고장난 곳을 찾아서 고치기에도 좋은 짜임새를 갖추게 됩니다.
          *
-         * 좋은 약초를 얻을 확률은 얼마나 될까요?
-         */
+         * 좋은 약초를 얻을 확률은 얼마나 될까요?*/
+
+
         System.out.println("Herb availability");
         herbAvailablities.report();
         System.out.println();
 
-        /* 좋은 약초가 있고 없고에 따른 약재의 품질은 어떤가요? */
+/*
+     좋은 약초가 있고 없고에 따른 약재의 품질은 어떤가요?
+*/
+
         System.out.println("Herb quality (Excellent = 0, Good = 1, Marginal = 2, Poor = 3): ");
         herbQualities.report();
         System.out.println();
 
-        /* 약초 품질에 따른 약물의 효과는 어떻게 분포되나요? */
+/*
+     약초 품질에 따른 약물의 효과는 어떻게 분포되나요?
+*/
+
         System.out.println("Potion effects by the 4 quality categories: ");
         for (Quality quality : Quality.values()) {
             normalDistributions.get(quality).report();
