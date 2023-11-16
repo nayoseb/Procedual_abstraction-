@@ -370,13 +370,24 @@ public class Iterators {
 
   }
 
-  public static <T> T get(Iterator<T> iterator, long index) {
-    nullCheckValidation("get", iterator, "Iterator<E> iterator");
-    if (index < 0) {
-      throw new IndexOutOfBoundsException("get: index < " + index);
+    /**
+     * 주어진 Iterator에서 특정 인덱스에 위치한 요소를 반환합니다.
+     * 이 메서드는 Iterator를 순회하면서 지정된 인덱스에 도달할 때까지 각 요소를 건너뜁니다.
+     *
+     * @param <T>      Iterator에 포함된 요소의 타입
+     * @param iterator 요소를 가져오고자 하는 Iterator
+     * @param index    가져오고자 하는 요소의 인덱스 (0부터 시작)
+     * @return 지정된 인덱스에 위치한 요소
+     * @throws IllegalNullArgumentException iterator가 null인 경우 발생
+     * @throws IndexOutOfBoundsException    인덱스가 음수이거나 Iterator의 크기를 초과하는 경우 발생
+     */
+    public static <T> T get(Iterator<T> iterator, long index) {
+        nullCheckValidation("get", iterator, "Iterator<E> iterator");
+        if (index < 0) {
+            throw new IndexOutOfBoundsException("get: index < " + index);
+        }
+        return getLast(limit(iterator, index + 1));
     }
-    return getLast(limit(iterator, index + 1));
-  }
 
   //private으로 선언해서 nullcheck 불필요
   private static <T> T getLast(Iterator<T> iterator) {
