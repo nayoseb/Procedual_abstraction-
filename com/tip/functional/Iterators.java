@@ -343,8 +343,21 @@ public class Iterators {
     };
   }
 
+  /**
+   * 주어진 Iterator에 포함된 요소의 총 개수를 반환합니다.
+   * 이 메서드는 Iterator의 모든 요소를 순회하며 각 요소에 대해 카운트를 1씩 증가시킵니다.
+   *
+   * @param <E>      Iterator의 요소 타입
+   * @param iterator 요소의 개수를 세고자 하는 Iterator
+   * @return Iterator에 포함된 요소의 총 개수
+   * @throws IllegalNullArgumentException iterator가 null인 경우 발생
+   */
+  //iterator에 포함된 요소의 수를 반환하는 메서드
   public static <E> long count(Iterator<E> iterator) {
+    nullCheckValidation("count", iterator, "Iterator<E> iterator");
     // TODO: reduce를 써서
+    return reduce(iterator, (acc, e) -> acc + 1, 0L);
+
   }
 
   public static <T> T get(Iterator<T> iterator, long index) {
