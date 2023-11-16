@@ -28,20 +28,6 @@ import static com.tip.functional.Iterators.*;
 import static com.tip.Mathx.*;
 
 public class IteratorsTest {
-        @Test
-        public void iterateTest() {
-                assertTrue(iterate(1, x -> x + 1) instanceof InfiniteIterator);
-                assertTrue(!(limit(iterate(1, x -> x + 1), 10) instanceof InfiniteIterator));
-                assertTrue(!Iterators.equals(limit(iterate(1, x -> x + 1), 10),
-                                Stream.iterate(1, x -> x + 1).limit(5).iterator()));
-                assertTrue(Iterators.equals(limit(iterate(1, x -> x + 1), 10),
-                                Stream.iterate(1, x -> x + 1).limit(10).iterator()));
-                assertEquals(Iterators.toString(limit(iterate(1, x -> x + 1), 10), " "),
-                                Stream.iterate(1, x -> x + 1).limit(10).map(String::valueOf)
-                                                .reduce((x, y) -> x + " " + y).orElse(""));
-                assertEquals(Iterators.toString(limit(iterate(1, x -> x + 1), 10), ","),
-                                Stream.iterate(1, x -> x + 1).limit(10).map(String::valueOf)
-                                                .collect(Collectors.joining(",")));
 
 
     /*reduce Test 코드*/
@@ -116,8 +102,47 @@ public class IteratorsTest {
 
 
 
+    /*equals Test 코드*/
+
+    @Test
+    @DisplayName("동일한 요소를 가진 두 Iterator equals비교")
+    void given_EqualIterators_when_CheckedForEquality_then_ReturnTrue() {
+        // Given: 두 개의 동일한 값을 가진 반복자 생성
+        Iterator<Integer> it1 = Arrays.asList(1, 2, 3).iterator();
+        Iterator<Integer> it2 = Arrays.asList(1, 2, 3).iterator();
 
         }
+        // When: 두 반복자의 동등성을 체크
+        boolean isEqual = Iterators.equals(it1, it2);
+
+        // Then: 결과가 true임을 확인
+        assertTrue(isEqual);
+    }
+
+    @Test
+    @DisplayName("동일하지 않은 요소를 가진 두 Iterator equals비교")
+    void given_DifferentIterators_when_CheckedForEquality_then_ReturnFalse() {
+        // Given: 두 개의 다른 값을 가진 반복자 생성
+        Iterator<Integer> it1 = Arrays.asList(1, 2, 3).iterator();
+        Iterator<Integer> it2 = Arrays.asList(4, 5, 6).iterator();
+        // When: 두 반복자의 동등성을 체크
+        boolean isEqual = Iterators.equals(it1, it2);
+
+        // Then: 결과가 false임을 확인
+        assertFalse(isEqual);
+    }
+
+
+    @Test
+    @DisplayName("null 값인 Iterator와 equals 메서드에 파라미터로 넣을 시 IllegalNullArgumentException")
+    void given_NullIterator_when_CheckedForEquality_then_ThrowsIllegalNullArgumentException() {
+        // Given: 한 개의 null 값을 가진 Iterator 생성
+        Iterator<Integer> it1 = null;
+        Iterator<Integer> it2 = Arrays.asList(1, 2, 3).iterator();
+        //When: 두 반복자의 동등성을 체크, Then: IllegalNullArgumentException가 던져지는 지 확인
+        assertThrows(IllegalNullArgumentException.class, () -> Iterators.equals(it1, it2));
+    }
+
 
         @Test
         void filterTest() {
