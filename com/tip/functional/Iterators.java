@@ -236,9 +236,19 @@ public class Iterators {
     return null;
   }
 
-  public static <T> InfiniteIterator<T> iterate(T seed, UnaryOperator<T> f) {
-    return new InfiniteIterator<T>() {
-      T current = seed;
+    /**
+     * 초기 요소(seed)와 UnaryOperator를 사용하여 무한 Iterator를 생성합니다.
+     * 이 Iterator는 'next' 메서드를 호출할 때마다 UnaryOperator를 현재 요소에 적용하여 다음 요소를 생성합니다.
+     *
+     * @param <T>  Iterator에 포함될 요소의 타입
+     * @param seed 무한 Iterator의 시작 요소
+     * @param f    현재 요소에 적용할 UnaryOperator 함수
+     * @return UnaryOperator를 적용하여 생성된 무한 요소들을 포함하는 InfiniteIterator
+     * @throws IllegalNullArgumentException seed 또는 f가 null인 경우 발생
+     */
+    public static <T> InfiniteIterator<T> iterate(T seed, UnaryOperator<T> f) {
+        return new InfiniteIterator<T>() {
+            T current = seed;
 
       @Override
       public T next() {
