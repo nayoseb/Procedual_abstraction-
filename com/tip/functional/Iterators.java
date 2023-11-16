@@ -178,27 +178,39 @@ public class Iterators {
     };
   }
 
+  /**
+   * Iterator에서 특정 조건(predicate)에 맞는 요소들만 필터링하여 새로운 Iterator로 반환합니다
+   *
+   * @param iterator  필터링할 요소들을 포함하고 있는 원본 Iterator
+   * @param predicate 조건을 정의하는 Predicate
+   * @param <E>       Iterator에 포함된 요소의 타입
+   * @return 특정 조건(predicate)에 맞는 요소들만 필터링한 Iterator
+   * @throws IllegalArgumentException iterator 또는 predicate가 null인 경우 발생
+   * @throws NoSuchElementException   다음 요소가 존재하지 않을 때 next()를 호출하면 발생
+   */
   public static <E> Iterator<E> filter(Iterator<E> iterator, Predicate<E> predicate) {
     // TODO: Bug를 찾을 수 있는 test code를 IteratorTest.filterTest에 쓰고, Bug 고치기
     // findFirst를 써서 풀기
+    nullCheckValidation("filter", iterator, "Iterator<E> iterator", predicate, "Predicate<E> predicate");
+    //next 메서드를 호출하지 않을 시 Iterator객체가 생기기 때문에 filter에서도 nullcheck 필요!
     return new Iterator<E>() {
       private E current;
 
       public boolean hasNext() {
-        while (iterator.hasNext()) {
-          current = iterator.next();
-          if (predicate.test(current))
-            return true;
-        }
-        return false;
+        return next != null;
       }
 
       public E next() {
-        if (!hasNext())
+        if (next == null) {
           throw new NoSuchElementException("filter");
+        }
+        E current = next;
+        // 다음 next() 호출을 위해 predicate에 일치하는 다음 요소를 찾음
+        next = findFirst(iterator, predicate);
         return current;
       }
     };
+
   }
 
   public static <E> E findFirst(Iterator<E> iterator, Predicate<E> predicate) {
