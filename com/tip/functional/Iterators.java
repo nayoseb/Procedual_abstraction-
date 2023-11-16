@@ -194,7 +194,8 @@ public class Iterators {
     nullCheckValidation("filter", iterator, "Iterator<E> iterator", predicate, "Predicate<E> predicate");
     //next 메서드를 호출하지 않을 시 Iterator객체가 생기기 때문에 filter에서도 nullcheck 필요!
     return new Iterator<E>() {
-      private E current;
+      // findFirst를 호출 'next'를 초기화, predicate에 일치하는 첫 번째 요소로 설정
+      private E next = findFirst(iterator, predicate);
 
       public boolean hasNext() {
         return next != null;
@@ -214,10 +215,24 @@ public class Iterators {
   }
 
   public static <E> E findFirst(Iterator<E> iterator, Predicate<E> predicate) {
+/*    //함수형 프로그래밍으로 작성한 filter
+    public static <E> Iterator<E> filter(Iterator<E> iterator, Predicate<E> predicate) {
+        // Iterator를 Stream으로 변환
+        return StreamSupport.stream(
+                        Spliterators.spliteratorUnknownSize(iterator, 0), false)
+                // Stream에 filter 적용
+                .filter(predicate)
+                // 필터링된 Stream을 Iterator로 변환하여 반환
+                .iterator();
+    }*/
+
+  //private으로 밖에서 쓸 수 없게 함 -> nullcheck 안해도 됌. filter에서 nullcheck를 시행하기 때문에
+  private static <E> E findFirst(Iterator<E> iterator, Predicate<E> predicate) {
     while (iterator.hasNext()) {
       E first = iterator.next();
-      if (predicate.test(first))
+      if (predicate.test(first)) {
         return first;
+      }
     }
     return null;
   }
