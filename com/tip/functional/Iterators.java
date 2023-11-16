@@ -262,7 +262,6 @@ public class Iterators {
     //주어진 최대 크기만큼의 요소를 포함하는 새 Iterator를 반환
     nullCheckValidation("limit", iterator, "Iterator<E> iterator");
 
-  }
     //음수가 들어오는 경우
     if (maxSize < 0) {
       throw new IteratorMaxSizeNegativeException("limit: maxsize로 음수는 들어올 수 없습니다.");
@@ -290,8 +289,25 @@ public class Iterators {
 
 
   }
-  public static <T> InfiniteIterator<T> generate(Supplier<T> supplier) { // TODO:
 
+  /**
+   * 주어진 Supplier 함수를 사용하여 값을 무한히 생성하는 InfiniteIterator를 반환합니다.
+   * 이 Iterator는 'next' 메서드가 호출될 때마다 Supplier에 의해 제공된 새로운 값을 반환합니다.
+   *
+   * @param <T>      생성될 값의 타입
+   * @param supplier 각 'next' 호출에 대해 새로운 값을 제공하는 Supplier 함수
+   * @return Supplier에 의해 생성된 값을 무한히 반환하는 InfiniteIterator
+   * @throws IllegalNullArgumentException supplier가 null인 경우 발생
+   */
+  //Supplier 함수를 사용하여 값을 무한히 생성하는 함수
+  public static <T> InfiniteIterator<T> generate(Supplier<T> supplier) { // TODO:
+    return new InfiniteIterator<T>() {
+      //next메서드를 호출할 때마다 새로운 값을 반환
+      @Override
+      public T next() {
+        return supplier.get();
+      }
+    };
   }
 
   public static <X, Y, Z> Iterator<Z> zip(BiFunction<X, Y, Z> biFunction, Iterator<X> xIterator,
