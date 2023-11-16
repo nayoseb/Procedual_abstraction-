@@ -285,8 +285,6 @@ public class IteratorsTest {
         Iterator<Integer> original = null;
         long maxSize = 5; // 양수값으로 설정
 
-        }
-}
         //when/then
         assertThrows(IllegalNullArgumentException.class, () -> Iterators.limit(original, maxSize));
     }
@@ -301,6 +299,41 @@ public class IteratorsTest {
 
         //when/then
         assertThrows(IteratorMaxSizeNegativeException.class, () -> Iterators.limit(original, maxSize));
+    }
+
+
+    /*generate Test 코드*/
+    @Test
+    @DisplayName("Supplier를 사용하여 무한 Iterator 생성")
+    void given_supplier_when_generate_then_returnInfiniteIterator() {
+        //given
+        Supplier<Integer> supplier = new Supplier<>() {
+            private int current = 0;
+
+            @Override
+            public Integer get() {
+                return current++;
+            }
+        };
+
+        //when
+        InfiniteIterator<Integer> infiniteIterator = Iterators.generate(supplier);
+
+        //then
+        assertEquals(0, infiniteIterator.next());
+        assertEquals(1, infiniteIterator.next());
+        assertEquals(2, infiniteIterator.next());
+        // 추가적인 값 검증은 무한 루프를 피하기 위해 제한합니다.
+    }
+
+    @Test
+    @DisplayName("Supplier가 null인 경우 예외 발생")
+    void given_nullSupplier_when_generate_then_throwIllegalNullArgumentException() {
+        //given
+        Supplier<Integer> supplier = null;
+
+        //when/then
+        assertThrows(IllegalNullArgumentException.class, () -> Iterators.generate(supplier));
     }
 
 
