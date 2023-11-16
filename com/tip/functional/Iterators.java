@@ -387,7 +387,7 @@ public class Iterators {
   }
 
   public static <E> void print(Iterator<E> iterator, String separator,
-      java.io.PrintStream printStream) {
+                               java.io.PrintStream printStream) {
     printStream.print(toString(iterator, separator));
   }
 
@@ -396,7 +396,7 @@ public class Iterators {
   }
 
   public static <E> void println(Iterator<E> iterator, String separator,
-      java.io.PrintStream printStream) {
+                                 java.io.PrintStream printStream) {
     print(iterator, separator, printStream);
     printStream.println();
   }
