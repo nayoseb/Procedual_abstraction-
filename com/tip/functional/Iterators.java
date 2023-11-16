@@ -105,8 +105,25 @@ public class Iterators {
    * @throws IllegalNullArgumentException xs 또는 ys가 null인 경우 발생
    */
   public static <T> boolean equals(Iterator<T> xs, Iterator<T> ys) { // TODO: reduce, zip을 써서
+    // xs나 ys가 null인 경우 Exception 던짐
+    nullCheckValidation("equals", xs, "Iterator<E> xs", ys, "Iterator<T> ys");
 
+
+    // 먼저 두 Iterator가 동일한 객체를 참조하는지 확인
+    if (xs == ys) {
+      return true;
+    }
+
+    // 두 Iterator의 요소들을 비교
+    Boolean areAllPairsEqual = reduce(
+            zip(Objects::equals, xs, ys),
+            (acc, isEqual) -> acc && isEqual,
+            true
+    ) && !xs.hasNext() && !ys.hasNext();
+
+    return areAllPairsEqual;
   }
+
 
   public static <T> String toString(Iterator<T> es, String separator) { // TODO: reduce를 써서
   }
