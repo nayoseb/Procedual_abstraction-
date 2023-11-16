@@ -1,21 +1,99 @@
 package com.tip.functional;
 
-import java.util.function.*;
-import java.util.*;
+import com.tip.functional.customexception.IllegalNullArgumentException;
+import com.tip.functional.customexception.IteratorMaxSizeNegativeException;
+import com.tip.functional.customexception.UnsupportedInfiniteIteratorException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 public class Iterators {
 
+  /**
+   * 주어진 Iterable의 각 요소에 대해 BiFunction을 적용하여 결과를 축소(reduce)합니다.
+   * 이 메서드는 초기 값과 함께 시작하여, Iterable의 각 요소에 대해 BiFunction을 순차적으로 적용합니다.
+   *
+   * @param <E>        Iterable의 요소 타입
+   * @param <R>        reduce 결과의 타입
+   * @param es         Iterable의 요소들
+   * @param biFunction 두 인자 (축소된 결과와 Iterable의 현재 요소)를 받아 새로운 결과를 생성하는 함수
+   * @param init       초기 값
+   * @return Iterable의 모든 요소를 처리한 최종 결과값
+   * @throws IllegalNullArgumentException es, biFunction 또는 init가 null인 경우 발생
+   */
   public static <E, R> R reduce(Iterable<E> es, BiFunction<R, E, R> biFunction, R init) {
+    nullCheckValidation("reduce", es, "Iterable<E> es)", biFunction, "BiFunction<R, E, R> biFunction", init,
+            "R init");
     R result = init;
-    for (E e : es)
+    for (E e : es) {
       result = biFunction.apply(result, e);
+    }
     return result;
   }
 
+
+  /**
+   * 주어진 Iterator의 각 요소에 대해 BiFunction을 적용하여 결과를 축소(reduce)합니다.
+   * 이 메서드는 초기 값과 함께 시작하여, Iterator의 각 요소에 대해 BiFunction을 순차적으로 적용합니다.
+   * 무한 반복자(InfiniteIterator)는 이 메서드에서 지원되지 않습니다.
+   *
+   * @param <E>        Iterator의 요소 타입
+   * @param <R>        축소 결과의 타입
+   * @param es         Iterator의 요소들
+   * @param biFunction 두 인자 (축소된 결과와 Iterator의 현재 요소)를 받아 새로운 결과를 생성하는 함수
+   * @param init       축소 작업의 초기 값
+   * @return Iterator의 모든 요소를 처리한 최종 결과값
+   * @throws IllegalNullArgumentException es, biFunction 또는 init가 null인 경우 발생
+   * @throws IllegalArgumentException     무한 반복자(InfiniteIterator)가 입력으로 제공되는 경우 발생
+   */
   public static <E, R> R reduce(Iterator<E> es, BiFunction<R, E, R> biFunction, R init) {
+    nullCheckValidation("reduce", es, "Iterator<E> es", biFunction, "BiFunction<R, E, R> biFunction", init,
+            "R init");
+    //Todo: InfiniteIterator가 아닌 Iterator hasnext메서드 값이 항상 true인 객체가 들어온다면 어떻게 막을까?
+    if (es instanceof InfiniteIterator) {
+      throw new UnsupportedInfiniteIteratorException(
+              "reduce: 무한 반복자는 이 연산에서 지원되지 않습니다.parameter에 Predicate를 추가하세요.");
+    }
     return reduce(() -> es, biFunction, init);
   }
 
+  /**
+   * 무한 Iterator에 대해 BiFunction을 적용하여 결과를 축소(reduce)합니다.
+   * 이 메서드는 초기 값과 함께 시작하여, InfiniteIterator의 각 요소에 대해 BiFunction을 적용합니다.
+   * stopCondition에 따라 축소 작업이 중단될 때까지 계속됩니다.
+   * InfiniteIterator가 들어오는 경우 무한루프를 돌기 때문에,
+   * InfiniteIterator가 인자값으로 들어오는 경우 reduce 오버로딩, 파라미터로 Predicate받아서 조건 추가해서 무한루프 탈출합니다.
+   *
+   * @param <E>           InfiniteIterator의 요소 타입
+   * @param <R>           축소 결과의 타입
+   * @param es            InfiniteIterator의 요소들
+   * @param biFunction    두 인자 (축소된 결과와 Iterator의 현재 요소)를 받아 새로운 결과를 생성하는 함수
+   * @param init          초기 값
+   * @param stopCondition reduce 작업을 중단할 조건을 정의하는 Predicate
+   * @return InfiniteIterator의 요소를 처리한 후의 최종 결과값
+   * @throws IllegalNullArgumentException es, biFunction, init, 또는 stopCondition 중 어느 하나라도 null인 경우 발생
+   */
+  public static <E, R> R reduce(InfiniteIterator<E> es, BiFunction<R, E, R> biFunction, R init,
+                                Predicate<R> stopCondition) {
+    nullCheckValidation("reduce", es, "InfiniteIterator<E> es", biFunction, "BiFunction<R, E, R> biFunction", init,
+            "R init");
+    R result = init;
+    while (es.hasNext()) {
+      result = biFunction.apply(result, es.next());
+      if (stopCondition.test(result)) {
+
+        break;
+      }
+    }
+    return result;
+  }
   public static <T> boolean equals(Iterator<T> xs, Iterator<T> ys) { // TODO: reduce, zip을 써서
 
   }
@@ -153,6 +231,26 @@ public class Iterators {
   }
 
   private Iterators() {}
+
+
+  private static void nullCheckValidation(Object... objectsAndNames) {
+    String methodName = objectsAndNames[0].toString();
+
+    for (int i = 1; i < objectsAndNames.length; i += 2) {
+      Object obj = objectsAndNames[i];
+      String name = (String) objectsAndNames[i + 1];
+
+      if (obj == null) {
+                /*
+                이전에는 파라미터에 잘못된 값이 들어와서 생기는 예외라서 IllegalArgumentException을 던져야 한다고 생각햇지만
+                https://stackoverflow.com/a/14104551 글을 보고 생각이 바뀌었습니다.
+                Null값이 있을 때 발생하는 오류에는 NullPointerException가 더 구체적인 예외처리라고 하는 사람들도 있습니다.
+                두 exception 모두 괜찮은 거 같아 더 명확한 IllegalNullArgumentException이라는 custom 예외처리를 만들어 던졌습니다.
+                */
+        throw new IllegalNullArgumentException(methodName + ": " + name + " 값이 null로 들어올 수 없습니다.");
+      }
+    }
+  }
 
 }
 
