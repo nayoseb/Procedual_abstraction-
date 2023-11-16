@@ -40,7 +40,7 @@ public final class Range implements Iterable<Long> {
      */
     private void classInvariant() {
         if (max() < min()) {
-            throw new IllegalArgumentException("Range: " + this.min() + " > " + this.max());
+            throw new InvalidRangeException("Invalid Range: 최소값 " + this.min() + "은(는) 최대값 " + this.max() + "보다 클 수 없습니다.");
         }
     }
 
