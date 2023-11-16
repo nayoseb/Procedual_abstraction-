@@ -1,5 +1,6 @@
 package com.tip.functional;
 
+import com.tip.functional.customexception.InvalidRangeException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
