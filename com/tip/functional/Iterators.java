@@ -214,7 +214,6 @@ public class Iterators {
 
   }
 
-  public static <E> E findFirst(Iterator<E> iterator, Predicate<E> predicate) {
 /*    //함수형 프로그래밍으로 작성한 filter
     public static <E> Iterator<E> filter(Iterator<E> iterator, Predicate<E> predicate) {
         // Iterator를 Stream으로 변환
@@ -250,10 +249,47 @@ public class Iterators {
     };
   }
 
+  /**
+   * Iterator에서 maxSize 개수만큼의 요소를 포함하는 Iterator를 반환합니다
+   *
+   * @param iterator 요소들을 포함하고 있는 원본 Iterator
+   * @param maxSize  반환할 최대 요소의 개수. 이 값은 음수가 될 수 없습니다.
+   * @param <T>      Iterator에 포함된 요소의 타입
+   * @return 원본 Iterator에서 최대 maxSize 만큼의 요소를 반환하는 새로운 Iterator. maxSize가 원본 Iterator의 크기보다 크면, 원본 Iterator의 모든 요소를 반환합니다.
+   * @throws IllegalArgumentException 만약 iterator가 null이거나 maxSize가 음수일 경우 발생합니다.
+   */
   public static <T> Iterator<T> limit(Iterator<T> iterator, long maxSize) { // TODO
+    //주어진 최대 크기만큼의 요소를 포함하는 새 Iterator를 반환
+    nullCheckValidation("limit", iterator, "Iterator<E> iterator");
 
   }
+    //음수가 들어오는 경우
+    if (maxSize < 0) {
+      throw new IteratorMaxSizeNegativeException("limit: maxsize로 음수는 들어올 수 없습니다.");
+    }
 
+    return new Iterator<T>() {
+      private long count = 0;
+
+      //아직 반환해야 할 요소가 남아 있고 (즉, count가 maxSize보다 작음) 원래 Iterator에도 요소가 남아 있는 경우에만 true를 반환합니다.
+      @Override
+      public boolean hasNext() {
+        return count < maxSize && iterator.hasNext();
+      }
+
+      // count가 maxSize 이상인 경우 요소를 반환하면 안 되므로 예외를 발생시킵니다. 그렇지 않은 경우 요소를 반환하기 전에 count를 증가시킵니다.
+      @Override
+      public T next() {
+        if (count >= maxSize) {
+          throw new NoSuchElementException();
+        }
+        count++;
+        return iterator.next();
+      }
+    };
+
+
+  }
   public static <T> InfiniteIterator<T> generate(Supplier<T> supplier) { // TODO:
 
   }
