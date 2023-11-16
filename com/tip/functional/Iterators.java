@@ -361,16 +361,20 @@ public class Iterators {
   }
 
   public static <T> T get(Iterator<T> iterator, long index) {
-    if (index < 0)
-      throw new IndexOutOfBoundsException("index < " + index);
+    nullCheckValidation("get", iterator, "Iterator<E> iterator");
+    if (index < 0) {
+      throw new IndexOutOfBoundsException("get: index < " + index);
+    }
     return getLast(limit(iterator, index + 1));
   }
 
+  //private으로 선언해서 nullcheck 불필요
   private static <T> T getLast(Iterator<T> iterator) {
     while (true) {
       T current = iterator.next();
-      if (!iterator.hasNext())
+      if (!iterator.hasNext()) {
         return current;
+      }
     }
   }
 
