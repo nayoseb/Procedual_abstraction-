@@ -125,7 +125,34 @@ public class Iterators {
   }
 
 
+  /**
+   * Iterator의 모든 요소를 separator로 구분하여 하나의 문자열로 결합합니다.
+   *
+   * @param es        Iterator 객체
+   * @param separator 요소들 사이에 삽입할 문자열
+   * @param <T>       Iterator에 포함된 요소의 타입
+   * @return Iterator의 모든 요소가 separator로 구분되어 결합된 문자열
+   * @throws IllegalArgumentException es 또는 separator가 null인 경우 발생
+   */
   public static <T> String toString(Iterator<T> es, String separator) { // TODO: reduce를 써서
+    // es나 separator가 null인 경우 IllegalArgumentException을 던짐
+    nullCheckValidation("toString", es, "Iterator<E> es", separator, "String separator");
+
+    if (es == null || separator == null) {
+      throw new IllegalArgumentException("toString: Iterator 또는 구분자로 null 값이 들어올 수 없습니다.");
+    }
+
+    //Iterator가 비어 있다면 공백 반환
+    if (!es.hasNext()) {
+      return "";
+    }
+
+    //비어 있지 않다면 첫 번째 요소를 처리하여 초기 문자열로 사용
+    T firstElement = es.next();
+    // reduce를 사용하여 나머지 요소를 처리하고, 각 요소를 문자열에 separator와 함게 추가함
+    return reduce(es,
+            (acc, element) -> acc + separator + element.toString(),
+            firstElement.toString());
   }
 
   public static <E, R> Iterator<R> map(Iterator<E> es, Function<E, R> function) {
