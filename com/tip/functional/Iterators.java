@@ -94,6 +94,16 @@ public class Iterators {
     }
     return result;
   }
+
+  /**
+   * 두 Iterator 객체를 비교하여 동일한 요소와 순서를 가지고 있는지 확인합니다.
+   *
+   * @param <T> 요소의 타입
+   * @param xs  첫 번째 Iterator 객체
+   * @param ys  두 번째 Iterator 객체
+   * @return 두 Iterator가 동일한 순서와 요소를 가질 경우 true, 그렇지 않으면 false 반환
+   * @throws IllegalNullArgumentException xs 또는 ys가 null인 경우 발생
+   */
   public static <T> boolean equals(Iterator<T> xs, Iterator<T> ys) { // TODO: reduce, zip을 써서
 
   }
@@ -230,7 +240,8 @@ public class Iterators {
     println(iterator, ", ");
   }
 
-  private Iterators() {}
+  private Iterators() {
+  }
 
 
   private static void nullCheckValidation(Object... objectsAndNames) {
