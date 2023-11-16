@@ -223,12 +223,6 @@ public class IteratorsTest {
         assertThrows(NoSuchElementException.class, filtered::next);
     }
 
-        @Test
-        void filterTest() {
-                assertTrue(fibonacci() instanceof InfiniteIterator);
-                Iterable<Integer> fib = Mathx::fibonacci;
-                assertTrue(Iterators.equals(limit(fibonacci(), 10), StreamSupport
-                                .stream(fib.spliterator(), false).limit(10).iterator()));
     @Test
     @DisplayName("파라미터로 들어오는 Predicate와 Iterator 중 null값이 들어오는 경우 IllegalNullArgumentException 반환")
     void given_nullIteratorOrPredicate_when_filtering_then_throwIllegalArgumentException() {
@@ -242,6 +236,71 @@ public class IteratorsTest {
     }
 
 
+    /*limit Test 코드*/
+
+    @Test
+    @DisplayName("제한된 크기의 Iterator 반환")
+    void given_iteratorAndMaxSize_when_limit_then_returnLimitedIterator() {
+        //given
+        Iterator<Integer> original = Arrays.asList(1, 2, 3, 4, 5).iterator();
+        long maxSize = 3;
+
+        //when
+        Iterator<Integer> limited = Iterators.limit(original, maxSize);
+
+        //then
+        assertTrue(limited.hasNext());
+        assertEquals(1, limited.next());
+        assertTrue(limited.hasNext());
+        assertEquals(2, limited.next());
+        assertTrue(limited.hasNext());
+        assertEquals(3, limited.next());
+        assertFalse(limited.hasNext());
+    }
+
+    @Test
+    @DisplayName("원본 Iterator 크기보다 큰 maxSize 제공 시 모든 요소 반환")
+    void given_iteratorLargerThanMaxSize_when_limit_then_returnAllElements() {
+        //given
+        Iterator<Integer> original = Arrays.asList(1, 2, 3).iterator();
+        long maxSize = 5;
+
+        //when
+        Iterator<Integer> limited = Iterators.limit(original, maxSize);
+
+        //then
+        assertTrue(limited.hasNext());
+        assertEquals(1, limited.next());
+        assertTrue(limited.hasNext());
+        assertEquals(2, limited.next());
+        assertTrue(limited.hasNext());
+        assertEquals(3, limited.next());
+        assertFalse(limited.hasNext());
+    }
+
+    @Test
+    @DisplayName("Iterator가 null일 경우 예외 발생")
+    void given_nullIterator_when_limit_then_throwIllegalNullArgumentException() {
+        //given
+        Iterator<Integer> original = null;
+        long maxSize = 5; // 양수값으로 설정
 
         }
 }
+        //when/then
+        assertThrows(IllegalNullArgumentException.class, () -> Iterators.limit(original, maxSize));
+    }
+
+
+    @Test
+    @DisplayName("maxSize가 음수일 경우 예외 발생")
+    void given_negativeMaxSize_when_limit_then_throwIteratorMaxSizeNegativeException() {
+        //given
+        Iterator<Integer> original = Arrays.asList(1, 2, 3).iterator();
+        long maxSize = -1;
+
+        //when/then
+        assertThrows(IteratorMaxSizeNegativeException.class, () -> Iterators.limit(original, maxSize));
+    }
+
+
