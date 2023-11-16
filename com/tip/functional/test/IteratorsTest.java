@@ -337,3 +337,80 @@ public class IteratorsTest {
     }
 
 
+    /*zip Test 코드*/
+    @Test
+    @DisplayName("두 Iterator의 요소를 결합")
+    void given_twoIterators_when_zipped_then_combineElements() {
+        //given
+        Iterator<Integer> xIterator = Arrays.asList(1, 2, 3).iterator();
+        Iterator<String> yIterator = Arrays.asList("a", "b", "c").iterator();
+        BiFunction<Integer, String, String> biFunction = (x, y) -> x + y;
+
+        //when
+        Iterator<String> zipped = Iterators.zip(biFunction, xIterator, yIterator);
+
+        //then
+        assertTrue(zipped.hasNext());
+        assertEquals("1a", zipped.next());
+        assertTrue(zipped.hasNext());
+        assertEquals("2b", zipped.next());
+        assertTrue(zipped.hasNext());
+        assertEquals("3c", zipped.next());
+        assertFalse(zipped.hasNext());
+    }
+
+    @Test
+    @DisplayName("첫 번째 Iterator가 null일 경우 예외 발생")
+    void given_firstNullIterator_when_zipped_then_throwIllegalNullArgumentException() {
+        //given
+        Iterator<Integer> xIterator = null;
+        Iterator<String> yIterator = Arrays.asList("a", "b", "c").iterator();
+        BiFunction<Integer, String, String> biFunction = (x, y) -> x + y;
+
+        //when/then
+        assertThrows(IllegalNullArgumentException.class, () -> Iterators.zip(biFunction, xIterator, yIterator));
+    }
+
+
+    @Test
+    @DisplayName("두 번째 Iterator가 null일 경우 예외 발생")
+    void given_secondNullIterator_when_zipped_then_throwIllegalNullArgumentException() {
+        //given
+        Iterator<Integer> xIterator = Arrays.asList(1, 2, 3).iterator();
+        Iterator<String> yIterator = null;
+        BiFunction<Integer, String, String> biFunction = (x, y) -> x + y;
+
+        //when/then
+        assertThrows(IllegalNullArgumentException.class, () -> Iterators.zip(biFunction, xIterator, yIterator));
+    }
+
+    @Test
+    @DisplayName("BiFunction이 null일 경우 예외 발생")
+    void given_nullBiFunction_when_zipped_then_throwIllegalNullArgumentException() {
+        //given
+        Iterator<Integer> xIterator = Arrays.asList(1, 2, 3).iterator();
+        Iterator<String> yIterator = Arrays.asList("a", "b", "c").iterator();
+        BiFunction<Integer, String, String> biFunction = null;
+
+        //when/then
+        assertThrows(IllegalNullArgumentException.class, () -> Iterators.zip(biFunction, xIterator, yIterator));
+    }
+
+
+
+    @Test
+    @DisplayName("Iterator가 끝날 경우 NoSuchElementException 발생")
+    void given_oneIteratorEnds_when_zipped_then_throwNoSuchElementException() {
+        //given
+        Iterator<Integer> xIterator = Arrays.asList(1, 2).iterator();
+        Iterator<String> yIterator = Arrays.asList("a", "b", "c").iterator();
+        BiFunction<Integer, String, String> biFunction = (x, y) -> x + y;
+
+        //when
+        Iterator<String> zipped = Iterators.zip(biFunction, xIterator, yIterator);
+
+        //then
+        zipped.next();
+        zipped.next();
+        assertThrows(NoSuchElementException.class, zipped::next);
+    }
