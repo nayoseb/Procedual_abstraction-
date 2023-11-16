@@ -189,12 +189,59 @@ public class IteratorsTest {
     }
 
 
+    /*filter Test 코드*/
+    @Test
+    @DisplayName("1부터 5까지 짝수 반환 조건으로 필터링")
+    void given_nonEmptyIteratorAndEvenPredicate_when_filtering_then_returnEvenNumbers() {
+        //given
+        Iterator<Integer> original = Arrays.asList(1, 2, 3, 4, 5).iterator();
+        Predicate<Integer> isEven = n -> n % 2 == 0;
+
+        //when
+        Iterator<Integer> filtered = Iterators.filter(original, isEven);
+
+        //then
+        assertTrue(filtered.hasNext());
+        assertEquals(2, filtered.next());
+        assertTrue(filtered.hasNext());
+        assertEquals(4, filtered.next());
+        assertFalse(filtered.hasNext());
+    }
+
+    @Test
+    @DisplayName("요소가 없는 Iterator 필터링 시 hasNext False반환 및 Next 호출 시 NoSuchElementException 반환")
+    void given_emptyIterator_when_filtering_then_hasNextReturnsFalseAndNextThrowsException() {
+        //given
+        Iterator<Integer> emptyIterator = Arrays.<Integer>asList().iterator();
+        Predicate<Integer> isEven = n -> n % 2 == 0;
+
+        //when
+        Iterator<Integer> filtered = Iterators.filter(emptyIterator, isEven);
+
+        //then
+        assertFalse(filtered.hasNext());
+        assertThrows(NoSuchElementException.class, filtered::next);
+    }
+
         @Test
         void filterTest() {
                 assertTrue(fibonacci() instanceof InfiniteIterator);
                 Iterable<Integer> fib = Mathx::fibonacci;
                 assertTrue(Iterators.equals(limit(fibonacci(), 10), StreamSupport
                                 .stream(fib.spliterator(), false).limit(10).iterator()));
+    @Test
+    @DisplayName("파라미터로 들어오는 Predicate와 Iterator 중 null값이 들어오는 경우 IllegalNullArgumentException 반환")
+    void given_nullIteratorOrPredicate_when_filtering_then_throwIllegalArgumentException() {
+        //given
+        Predicate<Integer> isEven = n -> n % 2 == 0;
+
+        //when, then
+        assertThrows(IllegalNullArgumentException.class, () -> Iterators.filter(null, isEven));
+        assertThrows(IllegalNullArgumentException.class,
+                () -> Iterators.filter(Arrays.asList(1, 2, 3).iterator(), null));
+    }
+
+
 
         }
 }
