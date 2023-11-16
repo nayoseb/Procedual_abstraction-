@@ -54,9 +54,10 @@ public class Iterators {
      * @throws UnsupportedInfiniteIteratorException 무한 반복자(InfiniteIterator)가 입력으로 제공되는 경우 발생
      */
     public static <E, R> R reduce(Iterator<E> es, BiFunction<R, E, R> biFunction, R init) {
-        //여기서 nullCheckValidation를 하지 않는 이유는 Iterable객체를 입력받는 reduce를 호출하여 IllegalNullArgumentException을 검사하기 때문입니다.
-//        nullCheckValidation("reduce", es, "Iterator<E> es", biFunction, "BiFunction<R, E, R> biFunction", init,
-//                "R init");
+        //Iterable 객체를 파라미터로 받는 reduce에서 nullCheckValidation으로 null 값이 들어오는 걸 체크하려고 했지만 디버깅을 해보니 Validation을 통과하고 foreach문에서 nullPointException이 발생했습니다.
+        //이는 제가 원하는 예외처리가 아니기 때문에 Iterator객체를 파라미터로 받는 reduce에서 nullCheckValidation을 했습니다.
+        nullCheckValidation("reduce", es, "Iterator<E> es", biFunction, "BiFunction<R, E, R> biFunction", init,
+                "R init");
         //Todo: InfiniteIterator가 아닌 Iterator hasnext메서드 값이 항상 true인 객체가 들어온다면 어떻게 막을까?
         if (es instanceof InfiniteIterator) {
             throw new UnsupportedInfiniteIteratorException(
@@ -66,7 +67,7 @@ public class Iterators {
     }
 
     /**
-     * 무한 Iterator에 대해 BiFunction을 적용하여 결과를 축소(reduce)합니다.
+     * InfiniteIterator에 대해 BiFunction을 적용하여 결과를 축소(reduce)합니다.
      * 이 메서드는 초기 값과 함께 시작하여, InfiniteIterator의 각 요소에 대해 BiFunction을 적용합니다.
      * stopCondition에 따라 축소 작업이 중단될 때까지 계속됩니다.
      * InfiniteIterator가 들어오는 경우 무한루프를 돌기 때문에,
