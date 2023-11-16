@@ -50,12 +50,13 @@ public class Iterators {
      * @param biFunction 두 인자 (축소된 결과와 Iterator의 현재 요소)를 받아 새로운 결과를 생성하는 함수
      * @param init       축소 작업의 초기 값
      * @return Iterator의 모든 요소를 처리한 최종 결과값
-     * @throws IllegalNullArgumentException es, biFunction 또는 init가 null인 경우 발생
-     * @throws IllegalArgumentException     무한 반복자(InfiniteIterator)가 입력으로 제공되는 경우 발생
+     * @throws IllegalNullArgumentException         es, biFunction 또는 init가 null인 경우 발생
+     * @throws UnsupportedInfiniteIteratorException 무한 반복자(InfiniteIterator)가 입력으로 제공되는 경우 발생
      */
     public static <E, R> R reduce(Iterator<E> es, BiFunction<R, E, R> biFunction, R init) {
-        nullCheckValidation("reduce", es, "Iterator<E> es", biFunction, "BiFunction<R, E, R> biFunction", init,
-                "R init");
+        //여기서 nullCheckValidation를 하지 않는 이유는 Iterable객체를 입력받는 reduce를 호출하여 IllegalNullArgumentException을 검사하기 때문입니다.
+//        nullCheckValidation("reduce", es, "Iterator<E> es", biFunction, "BiFunction<R, E, R> biFunction", init,
+//                "R init");
         //Todo: InfiniteIterator가 아닌 Iterator hasnext메서드 값이 항상 true인 객체가 들어온다면 어떻게 막을까?
         if (es instanceof InfiniteIterator) {
             throw new UnsupportedInfiniteIteratorException(
@@ -311,6 +312,7 @@ public class Iterators {
      */
     //Supplier 함수를 사용하여 값을 무한히 생성하는 함수
     public static <T> InfiniteIterator<T> generate(Supplier<T> supplier) { // TODO:
+        nullCheckValidation("generate", supplier, "Supplier<T> supplier");
         return new InfiniteIterator<T>() {
             //next메서드를 호출할 때마다 새로운 값을 반환
             @Override
