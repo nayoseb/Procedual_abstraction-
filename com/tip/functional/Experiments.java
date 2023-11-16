@@ -17,7 +17,7 @@ public class Experiments<T extends Number> implements Iterator<T> {
 
     @Override
     public boolean hasNext() {
-        // 래핑된 반복자가 더 많은 요소가 있는지 여부를 결정합니다.
+        // InfiniteIterator처럼 동작
         return true;
     }
 

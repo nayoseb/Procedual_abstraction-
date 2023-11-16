@@ -23,6 +23,12 @@ enum Quality {
 }
 
 
+/**
+ * 몬테카를로 방법을 사용하여 pi 값을 추정하는 메서드입니다.
+ * Mathx.dirichletTest 함수를 사용하여 무작위로 생성된 수가 서로 소일 확률을 여러번 시행하고 누적값으로 pi값을 추정합니다.
+ *
+ *
+ */
 public class MonteCarloTest {
     public static void piDemo() {
 
@@ -84,6 +90,13 @@ public class MonteCarloTest {
         System.out.println(get(pi, 100_000L));
     }
 
+    /**
+     *  약초의 품질과 약물 효과의 관계를 모의 실험하는 메서드입니다.
+     *  베르누이 시행을 여러 번 시행하여 이항 분포를 통해 좋은 약초를 발견할 확률을 구합니다.
+     *  약초의 품잘에 따른 효과를 네 가지 정상 분포를 통해 무작위로 생성합니다.
+     *  이를 통해 약물의 효과를 시뮬레이션하여 각 약초 품질에 따른 약물 효과의 분포를 추정할 수 있습니다.
+     *
+     */
     private static void potionTestWithInfiniteIterators() {
         /*
          * Iterator 패턴과 몬테카를로 방법을 실제 어떻게 쓰는지 그 장단점을 또렷이 드러내는 본보기로 약재와 약물의 관계를 모의 실험하는 예제를 다룹니다. 특히
@@ -153,6 +166,11 @@ public class MonteCarloTest {
         toList(limit(medicineEffects, 100));
     }
 
+    /**
+     * 약초의 품질과 약물 효과의 관계를 시뮬레이션하고, 시뮬레이션 과정에서 얻은 데이터를 기록하는 메서드입니다.
+     * 약초의 발견 확률, 약초 품질, 그리고 이에 따른 약물 효과를 다양한 확률 분포를 사용하여 시뮬레이션합니다.
+     * 시뮬레이션 과정은 위와 똑같습니다.
+     */
     private static void potionTestWithExperiments() {
         /*
          * 약효 모의 실험은 잘 되지만 실험은 결과 만큼 과정에 대한 정보도 중요합니다. 계산 과정에 쓴 데이터들 곧 약초와 품질, 그에 따른 약물의 품질, 그리고 약효에
