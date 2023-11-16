@@ -143,6 +143,51 @@ public class IteratorsTest {
         assertThrows(IllegalNullArgumentException.class, () -> Iterators.equals(it1, it2));
     }
 
+    /*toString Test 코드*/
+    @Test
+    @DisplayName("비어 있지 않은 Iterator를 seperator와 함께 toString으로 반환")
+    public void given_NonEmptyIterator_when_ConvertedToString_then_ReturnCorrectString() {
+        // Given: 비어 있지 않은 Iterator 생성
+        Iterator<Integer> it = Arrays.asList(1, 2, 3).iterator();
+        // When: toString 메서드를 사용하여 Iterator를 문자열로 변환
+        String result = Iterators.toString(it, ", ");
+        // Then: 결과가 "1, 2, 3"인지 확인
+        assertEquals("1, 2, 3", result);
+    }
+
+    @Test
+    @DisplayName("비어 있는 Iterator를 공백으로 반환")
+    public void given_EmptyIterator_when_ConvertedToString_then_ReturnEmptyString() {
+        // Given: 비어 있는 Iterator 생성
+        Iterator<Integer> it = Collections.emptyIterator();
+        // When: toString 메서드를 사용하여 Iterator를 문자열로 변환
+        String result = Iterators.toString(it, ", ");
+        // Then: 결과가 ""인지 확인(공백)
+
+        assertEquals("", result);
+    }
+
+    @Test
+    @DisplayName("null 값인 separator를 toString 메서드에 파라미터로 넣을 시 IllegalNullArgumentException")
+    public void given_NullSeparatorParameters_when_ConvertedToString_then_ThrowsIllegalNullArgumentException() {
+        // Given: null 값인 Iterator 생성
+        Iterator<Integer> it = Arrays.asList(1, 2, 3).iterator();
+        String separator = null;
+
+        //When: Iterators를 toString으로 변환 시 , Then: IllegalNullArgumentException가 던져지는 지 확인
+        assertThrows(IllegalNullArgumentException.class, () -> Iterators.toString(it, separator));
+    }
+
+    @Test
+    @DisplayName("null 값인 Iterator를 toString 메서드에 파라미터로 넣을 시 IllegalNullArgumentException")
+    public void given_NullIteratorParameter_when_ConvertedToString_then_ThrowsIllegalNullArgumentException() {
+        // Given: null 값인 Iterator 생성
+        Iterator<Integer> it = null;
+
+        //When: Iterators를 toString으로 변환 시 , Then: IllegalNullArgumentException가 던져지는 지 확인
+        assertThrows(IllegalNullArgumentException.class, () -> Iterators.toString(it, ", "));
+    }
+
 
         @Test
         void filterTest() {
