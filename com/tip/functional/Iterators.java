@@ -155,6 +155,17 @@ public class Iterators {
             firstElement.toString());
   }
 
+  /**
+   * Iterator의 각 요소에 Function을 적용하여 매핑된 결과를 포함하는 새 Iterator를 반환합니다.
+   * 이 메서드는 원본 Iterator의 각 요소에 주어진 함수를 적용하여, 변환된 결과를 포함하는 새로운 Iterator를 생성합니다.
+   *
+   * @param <E>      원본 Iterator의 요소 타입
+   * @param <R>      매핑된 결과의 요소 타입
+   * @param es       원본 Iterator
+   * @param function 각 요소에 적용할 변환 함수
+   * @return 각 요소가 주어진 함수에 의해 변환된 새로운 Iterator
+   * @throws IllegalNullArgumentException es 또는 function이 null인 경우 발생
+   */
   public static <E, R> Iterator<R> map(Iterator<E> es, Function<E, R> function) {
     return new Iterator<R>() {
       public boolean hasNext() {
