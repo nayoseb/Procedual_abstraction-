@@ -1,14 +1,22 @@
 package com.tip.functional.test;
 
+
+import static com.tip.functional.Iterators.generate;
+import static com.tip.functional.Iterators.get;
+import static com.tip.functional.Iterators.iterate;
+import static com.tip.functional.Iterators.limit;
+import static com.tip.functional.Iterators.map;
+import static com.tip.functional.Iterators.toList;
+import static com.tip.functional.Iterators.zip;
+
+import com.tip.Mathx;
+import com.tip.functional.Experiments;
+import com.tip.functional.InfiniteIterator;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
-
-import com.tip.Mathx;
-import static com.tip.functional.Iterators.*;
-import com.tip.functional.Experiments;
 
 enum Quality {
     BEST, GOOD, REGULAR, POOR;
@@ -23,15 +31,14 @@ public class MonteCarloTest {
          *
          * 참 거짓을 답하는 함수(실험)를 n 번 시행하고 참이 나온 횟수를 n으로 나눕니다.
          */
-        BiFunction<Long, Supplier<Integer>, Double> monteCarlo = (n,
-                experiment) -> Mathx.sum(limit(map(generate(experiment), binary -> binary), n)) / n;
+        BiFunction<Long, Supplier<Integer>, Double> monteCarlo =
+                (n, experiment) -> (double) (Mathx.sum(limit(map(generate(experiment), binary -> binary), n)) / n);
 
         /*
          * 몬테카를로 방식으로 값을 어림잡을 수 있습니다. 두 마구잡이 수가 서로 소인지 알아보는 함수 Mathx.dirichletTest를 씁니다.
          */
 
-        System.out.println(
-                Math.sqrt(6.0 / monteCarlo.apply(100_000L, () -> Mathx.dirichletTest() ? 1 : 0)));
+        System.out.println(Math.sqrt(6.0 / monteCarlo.apply(100_000L, () -> Mathx.dirichletTest() ? 1 : 0)));
 
         /*
          * 몬테카를로 iterator를 정의합니다. 오로지 계산 방법 그 자체만을 있는 그대로 표현한 코드를 쓸 수 있습니다. 계산 시간(횟수)와 계산 공간 문제 곧 계산
@@ -39,15 +46,42 @@ public class MonteCarloTest {
          */
 
         // TODO: Iterators.{iterate, zip}을 써서 코드 채우기
-        Function<Supplier<Integer>, Iterator<Double>> monteCarloIterator =
+        //익명 클래스 사용
+//        Function<Supplier<Integer>, Iterator<Double>> monteCarloIterator =
+//                new Function<Supplier<Integer>, Iterator<Double>>() {
+//                    @Override
+//                    public Iterator<Double> apply(Supplier<Integer> integerSupplier) {
+//
+//                        // 실험 결과의 누적 합을 계산
+//                        InfiniteIterator<Long> cumulativeSum = iterate(0L, sum -> sum + integerSupplier.get());
+//
+//                        // n 번째 시행에 대한 숫자 (1, 2, 3, ...)
+//                        InfiniteIterator<Long> indices = iterate(1L, n -> n + 1);
+//
+//                        // zip을 사용해서 두 iterator를 결합하고, 평균을 계산
+//                        return zip((sum, index) -> (double) sum / index, cumulativeSum, indices);
+//                    }
+//                };
+
+        //함수형 프로그래밍으로!
+        //R apply(T t); Supplier<Integer>입력타입(매개변수), terator<Double> 출력타입
+        Function<Supplier<Integer>, Iterator<Double>> monteCarloIterator = integerSupplier -> {
+            InfiniteIterator<Long> cumulativeSum = iterate(0L, sum -> sum + integerSupplier.get());
+            InfiniteIterator<Long> indices = iterate(1L, n -> n + 1);
+            return zip((sum, index) -> (double) sum / index, cumulativeSum, indices);
+        };
+
+
+
+
 
         /*
          *  PI 값으로 끝없이 수렴하는 수열을 표현할 수 있습니다.
          */
 
-        Iterator<Double> pi = map(monteCarloIterator.apply(() -> Mathx.dirichletTest() ? 1 : 0),
-                ratio -> Math.sqrt(6.0 / ratio));
-        System.out.println(get(pi, 100_1000));
+        Iterator<Double> pi =
+                map(monteCarloIterator.apply(() -> Mathx.dirichletTest() ? 1 : 0), ratio -> Math.sqrt(6.0 / ratio));
+        System.out.println(get(pi, 100_000L));
     }
 
     private static void potionTestWithInfiniteIterators() {
@@ -58,26 +92,31 @@ public class MonteCarloTest {
          *
          * 시뮬레이션에서는 가짜(의사) 마구잡이 수(난수)를 정해진 분포에 따라 늘어 놓은 일이 필요합니다. 이 실험에서 이항, 균등, 정상 분포의 간단한 쓰임새를 알 수
          * 있습니다.
-         */
 
-        /*
+
+
          * 확률 분포와 몬테카를로 방법으로 재밌는 실험을 할 수 있습니다. 돌림병을 치료하는데 꼭 필요한 약초가 있다고 합시다.
          *
          * 좋은 약초를 발견할 확률이 herb_ratio일 때 마구잡이 수를 뽑아 이 값과 크기를 비교하면 참 거짓을 정할 수 있습니다. 이를 연속 시행하면 참 거짓의
          * 베르누이 분포를 얻을 수 있습니다. 좋은 약초 발견 가능성을 이항 분포로 뽑아냅니다.
          */
+
+
         final double herbRatio = 0.2;
         Iterator<Integer> herbAvailablities = Mathx.binaryDistribution(herbRatio);
-        /*
-         * 좋은 약초는 BEST 품질. 좋은 약초가 없으면 다른 약초를 여럿 섞어서 대신 쓰는데 그 품질이 고르지 않습니다. 좋은 약초가 있느냐 없느냐에 따른 약초의
+        /*     * 좋은 약초는 BEST 품질. 좋은 약초가 없으면 다른 약초를 여럿 섞어서 대신 쓰는데 그 품질이 고르지 않습니다. 좋은 약초가 있느냐 없느냐에 따른 약초의
          * 효과를 어림잡는 함수를 만듭니다.
          *
          * 네 가지 품질 가운데 하나가 고르게 뽑히도록 이산 균등 분포를 씁니다.
          */
+         * 네 가지 품질 가운데 하나가 고르게 뽑히도록 이산 균등 분포를 씁니다.*/
+
+
         Iterator<Integer> qualities = Mathx.discreteUniformDistribution(Quality.class);
         // TODO 아래 주석을 제거하고 첫 번째 인자 채우기
-        // Iterator<Quality> herbQualities = zip(
-        // , herbAvailablities, qualities);
+        Iterator<Quality> herbQualities =
+                zip((b, q) -> b == 1 ? Quality.BEST : Quality.values()[q], herbAvailablities, qualities);
+
 
         EnumMap<Quality, Supplier<Double>> normalDistributions = new EnumMap<>(Quality.class);
         normalDistributions.put(Quality.BEST, () -> Mathx.randDoubleNormallyDistributed(90, 10));
@@ -85,29 +124,34 @@ public class MonteCarloTest {
         normalDistributions.put(Quality.REGULAR, () -> Mathx.randDoubleNormallyDistributed(50, 30));
         normalDistributions.put(Quality.POOR, () -> Mathx.randDoubleNormallyDistributed(30, 40));
 
-        /*
-         * 약초 품질에 따라 약물의 효과가 갈리지만 약초 품질이 고르지 않으므로 약물의 효과도 편차가 있는 것이 자연스럽습니다. 실감나는 시뮬레이션을 위해서 약물 효과를
-         * 네 가지로 분류하되 그 또한 마구잡이로 약효에 편차가 생기도록 네 가지 정상 분포로 표현합니다.
-         */
-        /* 약초의 품질에 따른 약물 효과를 마구잡이로 뽑는 함수를 만듭니다. 약물 효과는 0에서 100사이 값이므로 이 범위를 넘는 값을 잘라냅니다. */
+        /*     * 약초 품질에 따라 약물의 효과가 갈리지만 약초 품질이 고르지 않으므로 약물의 효과도 편차가 있는 것이 자연스럽습니다. 실감나는 시뮬레이션을 위해서 약물 효과를
+         * 네 가지로 분류하되 그 또한 마구잡이로 약효에 편차가 생기도록 네 가지 정상 분포로 표현합니다.*/
+
+
+/*
+     약초의 품질에 따른 약물 효과를 마구잡이로 뽑는 함수를 만듭니다. 약물 효과는 0에서 100사이 값이므로 이 범위를 넘는 값을 잘라냅니다.
+*/
+
         Iterator<Double> medicineEffects = map(herbQualities, quality -> {
             double effect = normalDistributions.get(quality).get();
-            if (effect < 0)
+            if (effect < 0) {
                 return 0D;
-            if (effect > 100)
+            }
+            if (effect > 100) {
                 return 100D;
+            }
             return effect;
         });
 
-        /*
-         * 계산이 시작되려면 시행 횟수를 정해서 약물 효과 추정치를 뽑아내고 계산 결과를 목록에 저장해야 합니다. 계산하는 방법만 적었지 실제 계산을 하지는 않았기 때문에
+        /*     * 계산이 시작되려면 시행 횟수를 정해서 약물 효과 추정치를 뽑아내고 계산 결과를 목록에 저장해야 합니다. 계산하는 방법만 적었지 실제 계산을 하지는 않았기 때문에
          * 계산 방식을 저장해둔 계산 환경 자원을 빼면 계산하는 과정에서 필요한 계산 자원이 조금도 소비되지 않았다는 사실을 정확히 인식하고 이해하는 것이 중요합니다.
          * 계산하는 방법과 계산을 나누면 어떤 방식으로 프로그램을 설계할 수 있는지가 잘 드러나 있습니다.
          *
          * 끝없는 계산 순열 medicineEffects를 100번으로 limit한 뒤에 Iterators.toList를 써서 계산 결과를 순서대로 하나씩 목록에 저장하는
          * 방식으로 실제 계산을 합니다. 계산 순열 effects에는 다른 계산 순열 herbQualities가 연결되어 있고 이는 다시 herbAvaliablities로
-         * 연결되어 있기 때문에 한 계산이 다른 계산으로 이어집니다.
-         */
+         * 연결되어 있기 때문에 한 계산이 다른 계산으로 이어집니다.*/
+
+
         toList(limit(medicineEffects, 100));
     }
 
