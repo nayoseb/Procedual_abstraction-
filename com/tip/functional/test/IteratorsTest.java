@@ -19,27 +19,21 @@ import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-import com.tip.Mathx;
-import com.tip.functional.*;
-import static com.tip.functional.Iterators.*;
-import static com.tip.Mathx.*;
 
 public class IteratorsTest {
 
+    @BeforeEach
+    void ready() {
+        iterator1 = Arrays.asList(1,2,3,4,5).iterator();
+    }
 
     /*reduce Test 코드*/
+    static Iterator<Integer> iterator1;
 
-    @Test
-    @DisplayName("null 값인 Iterator를 toString 메서드에 파라미터로 넣을 시 IllegalNullArgumentException")
-    void given_nullIterable_when_reduce_then_throwsNullPointerException() {
-        //given
-        Iterator<Integer> iterator = null;
-        //when, then
-        assertThrows(IllegalNullArgumentException.class, () -> Iterators.toString(iterator, ","));
-    }
+
 
 
     @Test
@@ -48,6 +42,8 @@ public class IteratorsTest {
         //given
         Iterator<Integer> iterator = null;
 
+
+        //when, then
         assertThrows(IllegalNullArgumentException.class, () -> reduce(iterator, Integer::sum, 0));
     }
 
@@ -67,6 +63,7 @@ public class IteratorsTest {
     }
 
     @Test
+    @DisplayName("InfiniteIterator객체가 아닌 Iterator 입력 시  reduce로 누적 결과 반환")
     void given_nonInfiniteIterator_when_reduce_then_returnAccumulatedResult() {
         //given
         Iterator<Integer> iterator = Arrays.asList(1, 2, 3, 4).iterator();
@@ -80,13 +77,14 @@ public class IteratorsTest {
     }
 
     @Test
-    void given_nullArguments_when_reduce_then_throwIllegalArgumentException() {
+    @DisplayName("reduce에 null  제공 시 IllegalNullArgumentException 발생")
+    void given_nullIteratorArguments_when_reduce_then_throwIllegalNullArgumentException() {
         //given
         Iterator<Integer> iterator = null;
         BiFunction<Integer, Integer, Integer> sum = Integer::sum;
 
         //when/then
-        assertThrows(IllegalArgumentException.class, () -> Iterators.reduce(iterator, sum, 0));
+        assertThrows(IllegalNullArgumentException.class, () -> Iterators.reduce(iterator, sum, 0));
     }
 
     @Test
@@ -111,7 +109,6 @@ public class IteratorsTest {
         Iterator<Integer> it1 = Arrays.asList(1, 2, 3).iterator();
         Iterator<Integer> it2 = Arrays.asList(1, 2, 3).iterator();
 
-        }
         // When: 두 반복자의 동등성을 체크
         boolean isEqual = Iterators.equals(it1, it2);
 
@@ -414,3 +411,35 @@ public class IteratorsTest {
         zipped.next();
         assertThrows(NoSuchElementException.class, zipped::next);
     }
+
+    /*count Test 코드*/
+    @Test
+    @DisplayName("Iterator의 요소 개수 계산")
+    void given_iterator_when_counted_then_returnCorrectNumberOfElements() {
+        //given
+        Iterator<Integer> iterator = Arrays.asList(1, 2, 3, 4, 5).iterator();
+
+        //when
+        long count = Iterators.count(iterator);
+
+        //then
+        assertEquals(5, count);
+    }
+
+    @Test
+    @DisplayName("Iterator가 null일 경우 예외 발생")
+    void given_nullIterator_when_counted_then_throwIllegalNullArgumentException() {
+        //given
+        Iterator<Integer> iterator = null;
+
+        //when/then
+        assertThrows(IllegalNullArgumentException.class, () -> Iterators.count(iterator));
+    }
+
+
+
+
+
+
+
+}
